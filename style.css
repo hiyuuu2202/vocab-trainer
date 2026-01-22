@@ -12,27 +12,33 @@ body {
 
 .container {
   background: white;
-  max-width: 520px;
+  max-width: 420px;
   width: 100%;
-  padding: 24px;
-  border-radius: 16px;
+  padding: 28px;
+  border-radius: 20px;
 }
 
 .center { text-align: center; }
 
-textarea {
+textarea, input {
   width: 100%;
-  min-height: 140px;
-  padding: 12px;
-  font-size: 15px;
-  margin-top: 12px;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+}
+
+input:focus {
+  border-color: #667eea;
+  outline: none;
 }
 
 button {
-  padding: 12px;
-  border-radius: 10px;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 16px;
   border: none;
-  margin-top: 12px;
   cursor: pointer;
 }
 
@@ -40,28 +46,34 @@ button.primary { background: #667eea; color: white; }
 button.danger { background: #ff5c5c; color: white; }
 button.full { width: 100%; }
 
-.prompt-box {
-  background: #eef0ff;
-  padding: 12px;
-  border-radius: 12px;
-  margin-top: 12px;
-}
-
-.flashcard {
+.flashcard, .choice {
   background: #f6f7ff;
-  padding: 16px;
-  border-radius: 12px;
-  text-align: center;
+  padding: 24px;
+  border-radius: 18px;
+  margin-top: 20px;
 }
 
-.flashcard input {
-  width: 100%;
-  padding: 12px;
-  font-size: 18px;
-  margin-top: 10px;
-}
-
-.question label {
+.choice label {
   display: block;
+  padding: 10px;
   margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.choice label.correct { background: #e0ffe6; }
+.choice label.wrong { background: #ffe0e0; }
+
+.feedback {
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.feedback.correct { color: #2ecc71; }
+.feedback.wrong { color: #e74c3c; }
+.loading {
+  text-align: center;
+  font-size: 24px;
+  color: #999;
 }
