@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Vocabulary</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>📘 Daily Vocabulary</h1>
+
+  <div class="guide">
+    <h2>📌 Cách học</h2>
+    <ul>
+      <li>Nhập từ vựng trong ngày</li>
+      <li>Hệ thống sẽ cho bạn học liên tục</li>
+      <li>Trả lời đúng 1 lần → +1 điểm</li>
+      <li>Đạt 3 điểm → từ sẽ biến mất</li>
+      <li><b>Hết từ → hoàn thành ngày 🎉</b></li>
+    </ul>
+  </div>
+
+  <!-- PROMPT -->
+  <div class="prompt-box">
+    <h2>🤖 Prompt tạo từ vựng</h2>
+    <textarea id="promptText" readonly>
+Tôi sẽ đưa cho bạn một danh sách từ vựng tiếng Anh, mỗi từ trên một dòng.
+Hãy trả về danh sách theo đúng định dạng:
+
+word - nghĩa tiếng Việt ngắn gọn
+
+Yêu cầu:
+- Mỗi từ trên một dòng
+- Không thêm giải thích
+- Không đánh số
+- Không thêm ký tự thừa
+
+Danh sách từ:
+    </textarea>
+    <button onclick="copyPrompt()">📋 Sao chép prompt</button>
+  </div>
+
+  <!-- INPUT -->
+  <textarea id="vocabInput" placeholder="apple - quả táo"></textarea>
+
+  <button class="primary full" onclick="saveAndStart()">Lưu & bắt đầu học</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

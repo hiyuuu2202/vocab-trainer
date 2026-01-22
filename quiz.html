@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>🧠 Đang học</h1>
+
+  <div class="mode-switch">
+    <button onclick="setMode('choice')">Trắc nghiệm</button>
+    <button onclick="setMode('flashcard')">Flashcard ngược</button>
+  </div>
+
+  <div id="quiz"></div>
+
+  <button class="primary full" onclick="submitAndContinue()">Tiếp tục</button>
+</div>
+
+<script src="script.js"></script>
+<script>
+  startLearning();
+</script>
+</body>
+</html>
