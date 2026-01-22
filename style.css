@@ -131,4 +131,7 @@ button.full {
   font-size: 16px;
   margin-top: 12px;
 }
-
+button.danger {
+  background: #ff5c5c;
+  color: white;
+}
