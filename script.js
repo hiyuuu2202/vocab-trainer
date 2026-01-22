@@ -1,34 +1,31 @@
 const KEY = "VOCAB_DATA";
-let currentBatch = [];
-let mode = "choice";
+let batch = [];
+let step = 0;
 
-function getData() {
-  return JSON.parse(localStorage.getItem(KEY)) || [];
-}
-
-function saveData(data) {
-  localStorage.setItem(KEY, JSON.stringify(data));
-}
-
-function shuffle(arr) {
-  return [...arr].sort(() => Math.random() - 0.5);
-}
+/* utils */
+const getData = () => JSON.parse(localStorage.getItem(KEY)) || [];
+const saveData = d => localStorage.setItem(KEY, JSON.stringify(d));
+const shuffle = a => [...a].sort(() => Math.random() - 0.5);
 
 /* INDEX */
 function saveAndStart() {
-  const text = vocabInput.value.trim();
-  if (!text) return;
-
+  const lines = vocabInput.value.trim().split("\n");
   const data = [];
-  text.split("\n").forEach(line => {
-    const [word, meaning] = line.split("-").map(s => s.trim());
-    if (word && meaning) {
-      data.push({ word, meaning, score: 0 });
-    }
+
+  lines.forEach(l => {
+    const [word, meaning] = l.split("|").map(s => s.trim());
+    if (word && meaning) data.push({ word, meaning, score: 0 });
   });
 
   saveData(data);
   location.href = "quiz.html";
+}
+
+function clearToday() {
+  if (confirm("Xóa toàn bộ từ hôm nay?")) {
+    localStorage.removeItem(KEY);
+    alert("Đã xóa");
+  }
 }
 
 function copyPrompt() {
@@ -39,73 +36,68 @@ function copyPrompt() {
 /* LEARNING */
 function startLearning() {
   const data = getData();
-
   if (data.length === 0) {
     location.href = "result.html";
     return;
   }
-
-  currentBatch = shuffle(data).slice(0, Math.min(5, data.length));
-  renderQuiz();
+  batch = shuffle(data).slice(0, Math.min(5, data.length));
+  step = 0;
+  renderQuestion();
 }
 
-function setMode(m) {
-  mode = m;
-  renderQuiz();
-}
-
-function renderQuiz() {
+function renderQuestion() {
+  const q = batch[step];
   const quiz = document.getElementById("quiz");
   quiz.innerHTML = "";
 
-  currentBatch.forEach((item, i) => {
-    if (mode === "choice") {
-      const options = shuffle([
-        item.meaning,
-        ...shuffle(getData().map(d => d.meaning)).slice(0, 3)
-      ]);
+  // chẵn: flash | lẻ: trắc nghiệm
+  if (step % 2 === 0) {
+    quiz.innerHTML = `
+      <div class="flashcard">
+        <p><b>${q.meaning}</b></p>
+        <input id="answer" placeholder="Nhập từ tiếng Anh">
+      </div>
+    `;
+  } else {
+    const allMeanings = [...new Set(getData().map(d => d.meaning))];
+    const wrong = shuffle(allMeanings.filter(m => m !== q.meaning)).slice(0, 3);
+    const options = shuffle([q.meaning, ...wrong]);
 
-      quiz.innerHTML += `
-        <div class="question">
-          <p><b>${item.word}</b></p>
-          ${options.map(o => `
-            <label>
-              <input type="radio" name="q${i}" value="${o}">
-              ${o}
-            </label>
-          `).join("")}
-        </div>`;
-    } else {
-      quiz.innerHTML += `
-        <div class="flashcard">
-          <p><b>${item.meaning}</b></p>
-          <input id="q${i}" placeholder="Nhập từ tiếng Anh">
-        </div>`;
-    }
-  });
+    quiz.innerHTML = `
+      <div class="question">
+        <p><b>${q.word}</b></p>
+        ${options.map(o => `
+          <label>
+            <input type="radio" name="answer" value="${o}">
+            ${o}
+          </label>
+        `).join("")}
+      </div>
+    `;
+  }
 }
 
 function submitAndContinue() {
-  let data = getData();
+  const q = batch[step];
+  let correct = false;
 
-  currentBatch.forEach((item, i) => {
-    let correct = false;
+  if (step % 2 === 0) {
+    const input = document.getElementById("answer").value.trim().toLowerCase();
+    correct = input === q.word.toLowerCase();
+  } else {
+    const checked = document.querySelector("input[name='answer']:checked");
+    correct = checked && checked.value === q.meaning;
+  }
 
-    if (mode === "choice") {
-      const c = document.querySelector(`input[name="q${i}"]:checked`);
-      correct = c && c.value === item.meaning;
-    } else {
-      const input = document.getElementById(`q${i}`).value.trim().toLowerCase();
-      correct = input === item.word.toLowerCase();
-    }
+  if (correct) q.score++;
 
-    if (correct) item.score++;
-  });
-
-  data = data
-    .map(d => currentBatch.find(b => b.word === d.word) || d)
+  let data = getData()
+    .map(d => d.word === q.word ? q : d)
     .filter(d => d.score < 3);
 
   saveData(data);
-  startLearning();
+
+  step++;
+  if (step >= batch.length) startLearning();
+  else renderQuestion();
 }

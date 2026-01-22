@@ -12,36 +12,35 @@
   <h1>📘 Daily Vocabulary</h1>
 
   <div class="guide">
-    <h2>📌 Cách học</h2>
     <ul>
       <li>Nhập từ vựng trong ngày</li>
       <li>Học liên tục cho đến khi hết từ</li>
       <li>Mỗi từ phải đúng <b>3 lần</b> để biến mất</li>
-      <li>Hệ thống tự trộn dạng bài</li>
+      <li>Dạng bài tự trộn: điền khuyết & trắc nghiệm</li>
     </ul>
   </div>
 
-  <!-- PROMPT -->
   <div class="prompt-box">
-    <h2>🤖 Prompt tạo từ vựng</h2>
+    <h2>🤖 Prompt cho ChatGPT</h2>
     <textarea id="promptText" readonly>
 Tôi sẽ đưa cho bạn một danh sách từ vựng tiếng Anh, mỗi từ trên một dòng.
-Hãy trả về danh sách theo đúng định dạng:
+Hãy trả về danh sách theo đúng định dạng sau:
 
-word - nghĩa tiếng Việt ngắn gọn
+word | nghĩa tiếng Việt ngắn gọn
 
 Yêu cầu:
 - Mỗi từ trên một dòng
-- Không thêm giải thích
 - Không đánh số
+- Không thêm giải thích
 - Không thêm ký tự thừa
+- Chỉ dùng dấu | để phân tách
 
 Danh sách từ:
     </textarea>
     <button onclick="copyPrompt()">📋 Sao chép prompt</button>
   </div>
 
-  <textarea id="vocabInput" placeholder="apple - quả táo"></textarea>
+  <textarea id="vocabInput" placeholder="moon | mặt trăng"></textarea>
 
   <button class="primary full" onclick="saveAndStart()">Lưu & bắt đầu học</button>
   <button class="danger full" onclick="clearToday()">🗑️ Xóa từ hôm nay</button>
