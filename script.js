@@ -1,6 +1,7 @@
 const KEY = "VOCAB_DATA";
-let batch = [];
-let step = 0;
+let words = [];
+let current = null;
+let locked = false;
 
 /* utils */
 const getData = () => JSON.parse(localStorage.getItem(KEY)) || [];
@@ -9,13 +10,14 @@ const shuffle = a => [...a].sort(() => Math.random() - 0.5);
 
 /* INDEX */
 function saveAndStart() {
-  const lines = vocabInput.value.trim().split("\n");
-  const data = [];
-
-  lines.forEach(l => {
-    const [word, meaning] = l.split("|").map(s => s.trim());
-    if (word && meaning) data.push({ word, meaning, score: 0 });
-  });
+  const data = vocabInput.value
+    .trim()
+    .split("\n")
+    .map(l => {
+      const [w, m] = l.split("|").map(s => s.trim());
+      return w && m ? { word: w, meaning: m, score: 0 } : null;
+    })
+    .filter(Boolean);
 
   saveData(data);
   location.href = "quiz.html";
@@ -35,40 +37,58 @@ function copyPrompt() {
 
 /* LEARNING */
 function startLearning() {
-  const data = getData();
-  if (data.length === 0) {
+  words = getData();
+  if (words.length === 0) {
     location.href = "result.html";
     return;
   }
-  batch = shuffle(data).slice(0, Math.min(5, data.length));
-  step = 0;
-  renderQuestion();
+  nextWord();
 }
 
-function renderQuestion() {
-  const q = batch[step];
-  const quiz = document.getElementById("quiz");
-  quiz.innerHTML = "";
+function nextWord() {
+  words = getData();
+  if (words.length === 0) {
+    location.href = "result.html";
+    return;
+  }
+  current = shuffle(words)[0];
+  render();
+}
 
-  // chẵn: flash | lẻ: trắc nghiệm
-  if (step % 2 === 0) {
-    quiz.innerHTML = `
+function getStage(word) {
+  // score: 0 → flash | 1 → choice | 2 → flash
+  return word.score === 1 ? "choice" : "flash";
+}
+
+function render() {
+  locked = false;
+  const card = document.getElementById("card");
+  const btn = document.getElementById("actionBtn");
+  btn.innerText = "Trả lời";
+
+  const stage = getStage(current);
+
+  if (stage === "flash") {
+    card.innerHTML = `
       <div class="flashcard">
-        <p><b>${q.meaning}</b></p>
-        <input id="answer" placeholder="Nhập từ tiếng Anh">
+        <p><b>${current.meaning}</b></p>
+        <input id="input" placeholder="Nhập từ tiếng Anh" autocomplete="off">
       </div>
     `;
   } else {
-    const allMeanings = [...new Set(getData().map(d => d.meaning))];
-    const wrong = shuffle(allMeanings.filter(m => m !== q.meaning)).slice(0, 3);
-    const options = shuffle([q.meaning, ...wrong]);
+    const allMeanings = [...new Set(words.map(w => w.meaning))];
+    const wrong = shuffle(
+      allMeanings.filter(m => m !== current.meaning)
+    ).slice(0, 3);
 
-    quiz.innerHTML = `
-      <div class="question">
-        <p><b>${q.word}</b></p>
+    const options = shuffle([current.meaning, ...wrong]);
+
+    card.innerHTML = `
+      <div class="choice">
+        <p><b>${current.word}</b></p>
         ${options.map(o => `
           <label>
-            <input type="radio" name="answer" value="${o}">
+            <input type="radio" name="ans" value="${o}">
             ${o}
           </label>
         `).join("")}
@@ -77,27 +97,51 @@ function renderQuestion() {
   }
 }
 
-function submitAndContinue() {
-  const q = batch[step];
+function submit() {
+  if (locked) return;
+
+  const stage = getStage(current);
   let correct = false;
 
-  if (step % 2 === 0) {
-    const input = document.getElementById("answer").value.trim().toLowerCase();
-    correct = input === q.word.toLowerCase();
+  if (stage === "flash") {
+    const input = document.getElementById("input");
+    if (!input) return;
+    correct =
+      input.value.trim().toLowerCase() ===
+      current.word.toLowerCase();
   } else {
-    const checked = document.querySelector("input[name='answer']:checked");
-    correct = checked && checked.value === q.meaning;
+    const checked = document.querySelector("input[name='ans']:checked");
+    correct = checked && checked.value === current.meaning;
   }
 
-  if (correct) q.score++;
+  showFeedback(correct);
+}
 
+function showFeedback(isCorrect) {
+  const card = document.getElementById("card");
+  const btn = document.getElementById("actionBtn");
+
+  if (isCorrect) {
+    locked = true;
+    card.innerHTML += `<div class="feedback correct">✅ Đúng!</div>`;
+    current.score++;
+    updateData();
+    setTimeout(nextWord, 700);
+  } else {
+    card.innerHTML += `
+      <div class="feedback wrong">
+        ❌ Sai. Đáp án đúng: <b>${current.word}</b>
+      </div>
+    `;
+    btn.innerText = "Sửa lại";
+    locked = false;
+  }
+}
+
+function updateData() {
   let data = getData()
-    .map(d => d.word === q.word ? q : d)
-    .filter(d => d.score < 3);
+    .map(w => (w.word === current.word ? current : w))
+    .filter(w => w.score < 3);
 
   saveData(data);
-
-  step++;
-  if (step >= batch.length) startLearning();
-  else renderQuestion();
 }

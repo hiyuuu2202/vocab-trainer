@@ -61,9 +61,6 @@ button.full { width: 100%; }
   border: 1px solid #ddd;
 }
 
-.choice label.correct { background: #e0ffe6; }
-.choice label.wrong { background: #ffe0e0; }
-
 .feedback {
   margin-top: 16px;
   font-size: 18px;
@@ -72,8 +69,11 @@ button.full { width: 100%; }
 
 .feedback.correct { color: #2ecc71; }
 .feedback.wrong { color: #e74c3c; }
-.loading {
-  text-align: center;
-  font-size: 24px;
-  color: #999;
+
+#actionBtn {
+  transition: all 0.2s ease;
+}
+
+#actionBtn:active {
+  transform: scale(0.97);
 }
